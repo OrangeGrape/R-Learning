@@ -1,2 +1,2 @@
 # R-Learning
-For learning and try R programming
+For learning R programming
