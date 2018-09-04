@@ -1,11 +1,12 @@
+############################################################# ICLUDE LIBARY #############################################################
 require(imputeTS)
 require(Ckmeans.1d.dp)
 require(zoo)
-## Load data
+############################################################# LOAD INPUT #############################################################
 df <- read.table("W289953_Q11_RD_StackWAL.txt",fill = TRUE,header = TRUE,sep = ",")
+############################################################# PREPARE INPUT #############################################################
 df$Ch <- factor(df$Ch,levels=unique(df$Ch))
 
-## Filter
 df$WAL_SHOffset_filtered <- df$WAL_SHOffset
 df$WAL_SHOffset_filtered[df$WAL_SHOffset>=300|df$WAL_SHOffset<=-200]=NA
 
@@ -14,26 +15,32 @@ df$R_filtered[df$WAL_SHOffset>=300|df$WAL_SHOffset<=-200]=NA
 
 BarNo <- unique(df$RowID)
 
-## Parameters Setting
+############################################################# Parameters Setting #############################################################
 nSeg = c(6)
 MA.size = 9
 
-## Loop for each RowID
+############################################################# Pre Allocate result table(rdf) #############################################################
 rdf <- data.frame()
-#for(j in 1:2){
+
+############################################################# LOOPING BAR #############################################################
 for(j in 1:length(BarNo)){
-  ## Selected by RowID
+#-------------------------------------------------------------------------------------------------------------------------------------  
+  ######################################################### PREPARE INPUT
+  ## Selected Current RowID
   selIdx <- df$RowID==BarNo[j]
   sdf <- df[selIdx,]
   
-  ## Selected Columns
+  ## Selected Columns Rdt[R,Ch] (as.data.frame == as table? )
   R <- as.data.frame(split(sdf$R_filtered,sdf$Ch))
   Offset <- as.data.frame(split(sdf$WAL_SHOffset_filtered,sdf$Ch))
-  
+  ######################################################### LOOPING CH
   ## Loop segmentation using k-means for each channels 
   for(i in 1:length(unique(sdf$Ch))){
+#-------------------------------------------------------------------------------------------------------------------------------------  
+#-------------------------------------------------------------------------------------------------------------------------------------  
+  
+   if(all(is.na(Offset[,i]))){next()} # if nodata continue next ch
     
-   if(all(is.na(Offset[,i]))){next()}
    off <- na.locf(Offset[,i], option = "locf", na.remaining = "rev")
    off.diff <- c(diff(off)[1],diff(off))
    off.diff.ma <- rollmean(off.diff,k=MA.size,fill=NA,align = "left")
@@ -62,10 +69,19 @@ for(j in 1:length(BarNo)){
                       Diff=r.diff,
                       Diff.MA=r.diff.ma)
     rdf <- rbind(rdf,tdf)
+    
+#-------------------------------------------------------------------------------------------------------------------------------------  
+#-------------------------------------------------------------------------------------------------------------------------------------  
   }
+
+#-------------------------------------------------------------------------------------------------------------------------------------  
 }
+
+############################################################# SAVE RESULT #############################################################
 write.csv(rdf,file=sprintf("resultsR_nSeg%d_MA%d.csv",max(nSeg),MA.size),row.names = FALSE)
 
+
+############################################################# BACK UP SYNTAX #############################################################
 
 # par(mfrow=c(1,2))
 # plot(y.diff,ylim = c(range(y.diff)))
