@@ -21,7 +21,7 @@ void simpleKmeans(float *X, float *Y, int k,int *Seg){
   int Npts = sizeof(X)/sizeof(float);
   float Xmin = X[0];
   
-  int i,iter,maxiter=10000,ik,Segmin,Done=0,sumDone,count;
+  int i,iter=0,maxiter=10000,ik,Segmin,Done=0,sumDone,count;
   float muX[k];
   float muY[k];
   float Urange[k];
@@ -70,9 +70,11 @@ void simpleKmeans(float *X, float *Y, int k,int *Seg){
       muX[ik] = sumX/count;
       muY[ik] = sumY/count;
     }
+    
     Done = (sumDone == k); 
     //Meaning all k center points have no update (sumdone == k) giving Done = 1
     iter++;
+    pritf("iter: %d\tDone: %d\n",iter,Done);
   } while(!Done || iter < maxiter);
   
 }
