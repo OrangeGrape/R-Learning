@@ -74,7 +74,7 @@ void simpleKmeans(float *X, float *Y, int k,int *Seg){
     Done = (sumDone == k); 
     //Meaning all k center points have no update (sumdone == k) giving Done = 1
     iter++;
-    pritf("iter: %d\tDone: %d\n",iter,Done);
+    printf("iter: %d\tDone: %d\n",iter,Done);
   } while(!Done || iter < maxiter);
   
 }
