@@ -1,4 +1,4 @@
-#includ <stdio.h>
+#include <stdio.h>
 
 int simpleKmean(float *X, float *Y, int K,int *Seg){
   //declare Algorithm parameter
